@@ -1,30 +1,79 @@
-const accountModel = require("../models/account.model");
+const accountModel = require("../models/account.model")
 
+async function createAccountController(req,res){
 
-async function createAccountController(req,res){ const user = req.user; const account = await accountModel.create({ user:user._id, }); res.status(201).json({ account }); }
+    try{
 
-async function getAccountsController(req,res){ try{ const accounts = await accountModel.find(); return res.status(200).json({ accounts }); }catch(error){ return res.status(500).json({ message:error.message }); } }
+        const user = req.user
+        const { name } = req.body
 
-async function getAccountBalanceController(req,res){
-    const {accountId} = req.params
+        const account = await accountModel.create({
+            user: user._id,
+            name: name
+        })
 
-    const account = await accountModel.findOne({
-        _id:accountId,
-        user:req.user._id,
-    })
+        return res.status(201).json({
+            account
+        })
 
-    if(!account){
-        return res.status(404).json({
-            message:"Account not found for this user",
+    }catch(error){
+
+        return res.status(500).json({
+            message:error.message
         })
     }
+}
 
-    const balance = await account.getBalance();
+async function getAccountsController(req, res) {
 
-    res.status(200).json({
-        accountId:account._id,
-        balance:balance,
-    })
+    try {
+
+        const accounts = await accountModel.find({
+            user: req.user._id,
+        })
+
+        return res.status(200).json({
+            accounts,
+        })
+
+    } catch (error) {
+
+        return res.status(500).json({
+            message: error.message,
+        })
+    }
+}
+
+async function getAccountBalanceController(req, res) {
+
+    try {
+
+        const { accountId } = req.params
+
+        const account = await accountModel.findOne({
+            _id: accountId,
+            user: req.user._id,
+        })
+
+        if (!account) {
+            return res.status(404).json({
+                message: "Account not found for this user",
+            })
+        }
+
+        const balance = await account.getBalance()
+
+        return res.status(200).json({
+            accountId: account._id,
+            balance,
+        })
+
+    } catch (error) {
+
+        return res.status(500).json({
+            message: error.message,
+        })
+    }
 }
 
 module.exports = {

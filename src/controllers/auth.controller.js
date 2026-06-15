@@ -35,6 +35,7 @@ async function userRegisterController(req,res){
     res.cookie("token",token)
 
     res.status(201).json({
+         message:"Registration Successful",
         user:{
             _id:user._id,
             email:user.email,
